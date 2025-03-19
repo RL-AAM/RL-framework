@@ -1,0 +1,10 @@
+大致框架如下
+my_project/
+├── environments/
+│   ├── __init__.py
+│   ├── aircraft.py       # 飞机基类及子类
+│   ├── missile.py       # 导弹
+│   ├── air_combat_env.py # 自定义作战环境
+│   ├── space_builder.py # 可变状态动作空间
+    ├── config/
+        └── aircraft_config.yaml #配置文件

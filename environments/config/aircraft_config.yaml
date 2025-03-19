@@ -1,0 +1,76 @@
+# aircraft_config.yaml
+observation_templates:
+  basic_obs:
+    features:
+      - name: "position"       # 3D位置
+        dim: 3
+        type: "continuous"
+        range: [-inf, inf]
+      - name: "velocity"       # 3D速度
+        dim: 3
+        type: "continuous"
+        range: [-3000, 3000]
+      - name: "remaining_missiles"
+        dim: 1
+        type: "discrete"
+        categories: 6          # 0-5枚剩余导弹
+
+action_templates:
+  hybrid_action:
+    components:
+      - name: "throttle"       # 连续油门控制
+        type: "continuous"
+        range: [0.0, 1.0]
+      - name: "pitch"          # 俯仰角控制
+        type: "continuous" 
+        range: [-30.0, 30.0]
+      - name: "fire_missile"   # 离散发射指令
+        type: "discrete"
+        categories: 2          # 0=不发射，1=发射
+
+aircraft_types:
+  fighter:
+    base_speed: 300.0
+    max_g: 9.0                 # 最大过载
+    sensors:
+      radar_range: 100000      # 雷达探测范围 (米)
+    weapons:
+      - type: medium_range     # 中距导弹
+        count: 4               # 挂载数量
+        guidance: proportional_navigation  # 制导策略
+      - type: short_range      # 近距导弹
+        count: 2
+        guidance: rl_guided    # RL 制导
+    control_strategy: rl       # 控制策略 (rl/expert
+  
+  uav:
+    observation: 
+      features: 
+        - name: "radar_scan"
+          dim: 360             # 360度雷达扫描数据
+          type: "continuous"
+          range: [0, 1]
+    action: 
+      components:
+        - name: "waypoint"     # 目标航点
+          type: "continuous"
+          dim: 2
+          range: [0, 10000]
+          
+missile_types:
+  medium_range:
+    speed: 800.0      # 速度 (m/s)
+    max_range: 50000  # 最大射程 (m)
+    damage: 50.0      # 伤害值
+  short_range:
+    speed: 1200.0
+    max_range: 10000
+    damage: 80.0
+
+guidance_strategies:
+  proportional_navigation:
+    type: classical
+    navigation_constant: 4.0   # 比例导引系数
+  rl_guided:
+    type: rl
+    policy_path: "/models/missile_policy"  # RL 策略路径
